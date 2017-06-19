@@ -1,4 +1,4 @@
-package xyz.gnarbot.gnar.guilds
+package xyz.gnarbot.gnar.options
 
 import xyz.gnarbot.gnar.Bot
 import xyz.gnarbot.gnar.db.ManagedObject

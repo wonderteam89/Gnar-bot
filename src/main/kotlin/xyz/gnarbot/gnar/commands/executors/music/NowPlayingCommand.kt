@@ -18,10 +18,11 @@ class NowPlayingCommand : CommandExecutor() {
     private val totalBlocks = 15
 
     override fun execute(context: Context, args: Array<String>) {
-        val track = context.guildData.musicManager.player.playingTrack
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+        val track = manager?.player?.playingTrack
 
-        if (track == null) {
-            context.send().error("The player is not currently playing anything.\n" +
+        if (manager == null || track == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
                     "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
             return
         }
@@ -54,7 +55,7 @@ class NowPlayingCommand : CommandExecutor() {
             }
 
             field("Repeating", true) {
-                context.guildData.musicManager.scheduler.repeatOption
+                manager.scheduler.repeatOption
             }
         }.action().queue()
     }

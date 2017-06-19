@@ -13,23 +13,27 @@ import java.awt.Color
 
 object CommandDispatcher {
     fun handleEvent(event: GuildMessageReceivedEvent) {
-        val gd = Bot.getGuildData(event.guild)
+        if (!event.message.content.startsWith(Bot.CONFIG.prefix)) {
+            return
+        }
 
         if (event.author == null || event.member == null) {
             return
         }
 
         launch(CommonPool) {
-            if (callCommand(Context(event))) {
-                gd.shard.requests++
+            Context(event).let {
+                if (callCommand(it)) {
+                    it.shard.requests++
+                }
             }
+
         }
     }
 
     /**
      * Call the command based on the message content.
      *
-     * @param message Message object.
      * @return If the call was successful.
      */
     fun callCommand(context: Context) : Boolean {
@@ -39,7 +43,7 @@ object CommandDispatcher {
             return false
         }
 
-        if (context.guildData.options.ignoredUsers.contains(context.user.id)) {
+        if (context.guildOptions.ignoredUsers.contains(context.user.id)) {
             return false
         }
 
@@ -51,14 +55,14 @@ object CommandDispatcher {
 
         val label = tokens[0].substring(Bot.CONFIG.prefix.length).toLowerCase().trim()
 
-        if (label in context.guildData.options.disabledCommands) {
+        if (label in context.guildOptions.disabledCommands) {
             context.send().error("This command is disabled by the server owner.").queue()
             return false
         }
 
         val cmd = Bot.getCommandRegistry().getCommand(label) ?: return false
 
-        val isIgnored = context.guildData.options.ignoredChannels.contains(context.channel.id)
+        val isIgnored = context.guildOptions.ignoredChannels.contains(context.channel.id)
 
         if (cmd.info.ignorable && isIgnored) {
             return false
@@ -93,7 +97,7 @@ object CommandDispatcher {
             return false
         }
 
-        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.donor && !context.guildData.isPremium()) {
+        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.donor && !Bot.CONFIG.donors.contains(context.guild.idLong)) {
             if (!isIgnored) context.send().embed("Donators Only") {
                 setColor(Color.ORANGE)
                 description {

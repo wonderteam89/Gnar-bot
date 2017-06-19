@@ -37,6 +37,12 @@ class Credentials(file: File) {
         }
     }
 
+    val dbAddr: String = config["database", "addr"].getString("localhost")
+    val dbPort: Int = config["database", "port"].getInt(28015)
+    val dbName: String = config["database", "name"].getString("bot")
+    val dbUser: String = config["database", "user"].getString("admin")
+    val dbPass: String = config["database", "pass"].getString("")
+
     val abal: String? = config["server counts", "abal"].string
     val carbonitex: String? = config["server counts", "carbonitex"].string
     val discordBots: String? = config["server counts", "discordbots"].string

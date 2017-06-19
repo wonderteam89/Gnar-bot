@@ -29,7 +29,7 @@ class BotInfoCommand : CommandExecutor() {
         var requests = 0
         var textChannels = 0
         var voiceChannels = 0
-        var guildData = 0 // wrapper
+        val guildData = Bot.getOptionRegistry().guildCache.size()
         var guilds = 0
 
         var users = 0
@@ -59,7 +59,6 @@ class BotInfoCommand : CommandExecutor() {
             users += shard.jda.users.size
             textChannels += shard.jda.textChannels.size
             voiceChannels += shard.jda.voiceChannels.size
-            guildData += Bot.getGuildDataMap().size()
         }
 
         val commandSize = registry.entries.count { it.info.category.show }

@@ -5,7 +5,6 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import xyz.gnarbot.gnar.commands.executors.music.RepeatOption;
-import xyz.gnarbot.gnar.guilds.GuildData;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class TrackScheduler extends AudioEventAdapter {
-    private final GuildData guildData;
+    private final MusicManager manager;
     private final AudioPlayer player;
 
     private final Queue<AudioTrack> queue;
@@ -23,8 +22,8 @@ public class TrackScheduler extends AudioEventAdapter {
     /**
      * @param player The audio player this scheduler uses
      */
-    public TrackScheduler(GuildData guildData, AudioPlayer player) {
-        this.guildData = guildData;
+    public TrackScheduler(MusicManager manager, AudioPlayer player) {
+        this.manager = manager;
         this.player = player;
         this.queue = new LinkedList<>();
     }
@@ -35,7 +34,6 @@ public class TrackScheduler extends AudioEventAdapter {
      * @param track The track to play or add to queue.
      */
     public void queue(AudioTrack track) {
-
         // Calling startTrack with the noInterrupt set to true will start the track only if nothing is currently playing. If
         // something is playing, it returns false and does nothing. In that case the player was already playing so this
         // track goes to the queue instead.
@@ -49,9 +47,13 @@ public class TrackScheduler extends AudioEventAdapter {
      * Start the next track, stopping the current one if it is playing.
      */
     public void nextTrack() {
-
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
+
+        if (queue.isEmpty()) {
+            manager.destroy();
+            return;
+        }
 
         player.startTrack(queue.poll(), false);
     }
@@ -74,10 +76,6 @@ public class TrackScheduler extends AudioEventAdapter {
                     queue.offer(newTrack);
                 }
                 case NONE:
-                    if (queue.isEmpty()) {
-                        guildData.getMusicManager().reset();
-                        return;
-                    }
                     nextTrack();
             }
         }

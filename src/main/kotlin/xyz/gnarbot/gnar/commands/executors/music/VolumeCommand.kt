@@ -20,11 +20,24 @@ class VolumeCommand : CommandExecutor() {
     private val totalBlocks = 20
 
     override fun execute(context: Context, args: Array<String>) {
-        val botChannel = context.guild.selfMember.voiceState.channel
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
 
+        if (manager == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
+                    "\uD83C\uDFB6` _play (song/url)` in a channel to start playing some music!").queue()
+            return
+        }
+
+        val botChannel = context.guild.selfMember.voiceState.channel
         if (botChannel == null) {
-            context.send().error("The bot is not currently in a channel.\n" +
-                    "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
+            context.send().error("The bot is not currently in a channel.\n"
+                    + "\uD83C\uDFB6 `_play (song/url)` to start playing some music!\n"
+                    + "\uD83E\uDD16 The bot will automatically join your channel.").queue()
+            return
+        }
+
+        if (botChannel != context.member.voiceState.channel) {
+            context.send().error("You're not in the same channel as the bot.").queue()
             return
         }
 
@@ -33,7 +46,7 @@ class VolumeCommand : CommandExecutor() {
                 setColor(Bot.CONFIG.musicColor)
 
                 field("", true) {
-                    val percent = context.guildData.musicManager.player.volume.toDouble() / 100
+                    val percent = manager.player.volume.toDouble() / 100
                     buildString {
                         for (i in 0 until totalBlocks) {
                             if (i / totalBlocks.toDouble() > percent) {
@@ -57,9 +70,9 @@ class VolumeCommand : CommandExecutor() {
             return
         }
 
-        val old = context.guildData.musicManager.player.volume
+        val old = manager.player.volume
 
-        context.guildData.musicManager.player.volume = amount
+        manager.player.volume = amount
 
         context.send().embed("Music Volume") {
             setColor(Bot.CONFIG.musicColor)

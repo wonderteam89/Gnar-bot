@@ -1,7 +1,6 @@
 package xyz.gnarbot.gnar.commands.executors.music
 
 import com.jagrosh.jdautilities.menu.PaginatorBuilder
-import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
 import xyz.gnarbot.gnar.Bot
 import xyz.gnarbot.gnar.commands.Category
@@ -12,28 +11,19 @@ import xyz.gnarbot.gnar.utils.Utils
 
 @Command(
         aliases = arrayOf("queue", "list"),
-        usage = "[clear]",
         description = "Shows the music that's currently queued.",
         category = Category.MUSIC
 )
 class QueueCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {
-        val queue = context.guildData.musicManager.scheduler.queue
-
-        if (args.isNotEmpty()) {
-            if (args[0] == "clear") {
-                if (!context.member.hasPermission(context.guild.selfMember.voiceState.channel, Permission.MANAGE_CHANNEL)) {
-                    context.send().error("You lack the following permissions: `Manage Channels` in the the voice channel `${context.guild.selfMember.voiceState.channel.name}`.").queue()
-                    return
-                }
-                queue.clear()
-                context.send().embed("Music Queue") {
-                    setColor(Bot.CONFIG.musicColor)
-                    setDescription("Cleared the music queue.")
-                }.action().queue()
-                return
-            }
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+        if (manager == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
+                    "\uD83C\uDFB6` _play (song/url)` in a channel to start playing some music!").queue()
+            return
         }
+
+        val queue = manager.scheduler.queue
 
         PaginatorBuilder(Bot.getWaiter())
                 .setTitle("Music Queue")

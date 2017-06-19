@@ -1,27 +1,20 @@
 package xyz.gnarbot.gnar;
 
 import com.jagrosh.jdautilities.waiter.EventWaiter;
-import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
-import gnu.trove.map.TLongObjectMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.JDAInfo;
-import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.gnarbot.gnar.commands.CommandRegistry;
 import xyz.gnarbot.gnar.db.Database;
-import xyz.gnarbot.gnar.guilds.GuildData;
 import xyz.gnarbot.gnar.listeners.BotListener;
 import xyz.gnarbot.gnar.listeners.GuildCountListener;
+import xyz.gnarbot.gnar.music.PlayerRegistry;
+import xyz.gnarbot.gnar.options.OptionsRegistry;
 import xyz.gnarbot.gnar.utils.DiscordLogBack;
 import xyz.gnarbot.gnar.utils.SimpleLogToSLF4JAdapter;
 
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +29,17 @@ public final class Bot {
 
     public static final Credentials KEYS = new Credentials(new File("credentials.conf"));
     public static final BotConfiguration CONFIG = new BotConfiguration(new File("bot.conf"));
-    public static final Database DATABASE = new Database("bot");
+    public static final Database DATABASE = new Database(KEYS.getDbName());
 
     protected static final GuildCountListener guildCountListener = new GuildCountListener();
     protected static final BotListener botListener = new BotListener();
     protected static final EventWaiter waiter = new EventWaiter();
 
     private static final CommandRegistry commandRegistry = new CommandRegistry();
-    private static final List<Shard> shards = new ArrayList<>();
+    private static final PlayerRegistry playerRegistry = new PlayerRegistry();
+    private static final OptionsRegistry optionRegistry = new OptionsRegistry();
 
-    private static final TLongObjectMap<GuildData> guildDataMap = new TLongObjectHashMap<>();
+    private static final List<Shard> shards = new ArrayList<>();
 
     public static void main(String[] args) {
         SimpleLogToSLF4JAdapter.install();
@@ -60,7 +54,9 @@ public final class Bot {
         LOG.info("JDA:\t\t" + JDAInfo.VERSION);
 
         for (int i = 0; i < KEYS.getShards(); i++) {
-            shards.add(new Shard(i));
+            Shard shard = new Shard(i);
+            shards.add(shard);
+            shard.build();
         }
 
         LOG.info("The bot is now fully connected to Discord.");
@@ -70,6 +66,15 @@ public final class Bot {
         return commandRegistry;
     }
 
+    public static PlayerRegistry getPlayerRegistry() {
+        return playerRegistry;
+    }
+
+    public static OptionsRegistry getOptionRegistry() {
+        return optionRegistry;
+    }
+
+
     public static EventWaiter getWaiter() {
         return waiter;
     }
@@ -78,59 +83,18 @@ public final class Bot {
         return shards;
     }
 
-    private static JDA createJDA(int id) {
-        JDABuilder builder = new JDABuilder(AccountType.BOT)
-                .setToken(KEYS.getToken())
-                .setAutoReconnect(true)
-                .setAudioEnabled(true)
-                .setAudioSendFactory(new NativeAudioSendFactory())
-                .addEventListener(guildCountListener, waiter, botListener)
-                .setEnableShutdownHook(true)
-                .setGame(Game.of(String.format(CONFIG.getGame(), id)));
-
-        if (KEYS.getShards() > 1) builder.useSharding(id, KEYS.getShards());
-
-        try {
-            JDA jda = builder.buildBlocking();
-            jda.getSelfUser().getManager().setName(CONFIG.getName()).queue();
-            return jda;
-        } catch (LoginException | InterruptedException | RateLimitedException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static TLongObjectMap<GuildData> getGuildDataMap() {
-        return guildDataMap;
-    }
-
-    public static GuildData getGuildData(long id) {
-        GuildData data = guildDataMap.get(id);
-        if (data == null) {
-            data = new GuildData(id);
-            guildDataMap.put(id, data);
-        }
-        return data;
-    }
-
-    public static GuildData getGuildData(Guild guild) {
-        return getGuildData(guild.getIdLong());
-    }
-
-    public static void clearGuildData() {
-        for (GuildData gd : getGuildDataMap().valueCollection()) {
-            gd.save();
-            gd.getMusicManager().reset();
-        }
-        getGuildDataMap().clear();
-    }
-
     public static Shard getShard(int id) {
         return shards.get(id);
     }
 
     public static Shard getShard(JDA jda) {
         return shards.get(jda.getShardInfo() != null ? jda.getShardInfo().getShardId() : 0);
+    }
+
+    public static Guild getGuild(long id) {
+        int shardId = (int) ((id >> 22) % Bot.KEYS.getShards());
+        Shard shard = getShard(shardId);
+        return shard != null ? shard.getJda().getGuildById(id) : null;
     }
 
     public static void restart() {

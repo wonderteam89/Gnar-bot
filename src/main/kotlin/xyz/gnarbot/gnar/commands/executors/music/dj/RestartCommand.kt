@@ -17,11 +17,9 @@ import xyz.gnarbot.gnar.utils.Context
 )
 class RestartCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {
-        val manager = context.guildData.musicManager
-
-        val botChannel = context.guild.selfMember.voiceState.channel
-        if (botChannel == null) {
-            context.send().error("The bot is not currently in a channel.\n" +
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+        if (manager == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
                     "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
             return
         }

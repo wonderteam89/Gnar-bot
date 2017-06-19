@@ -2,6 +2,7 @@ package xyz.gnarbot.gnar.commands.executors.music.search
 
 import com.jagrosh.jdautilities.menu.SelectorBuilder
 import xyz.gnarbot.gnar.Bot
+import xyz.gnarbot.gnar.music.MusicManager
 import xyz.gnarbot.gnar.utils.Utils
 import xyz.gnarbot.gnar.utils.b
 import xyz.gnarbot.gnar.utils.link
@@ -24,13 +25,11 @@ class SoundcloudCommand : xyz.gnarbot.gnar.commands.CommandExecutor() {
 
         val query = args.joinToString(" ")
 
-        xyz.gnarbot.gnar.music.MusicManager.Companion.search("scsearch:$query", 5) { results ->
+        MusicManager.search("scsearch:$query", 5) { results ->
             if (results.isEmpty()) {
                 context.send().error("No search results for `$query`.").queue()
                 return@search
             }
-
-            val manager = context.guildData.musicManager
 
             val botChannel = context.guild.selfMember.voiceState.channel
             val userChannel = context.member.voiceState.channel
@@ -70,6 +69,7 @@ class SoundcloudCommand : xyz.gnarbot.gnar.commands.CommandExecutor() {
                     for (result in results) {
                         addOption("`${Utils.getTimestamp(result.info.length)}` ${b(result.info.title link result.info.uri)}") {
                             if (context.member.voiceState.inVoiceChannel()) {
+                                val manager = Bot.getPlayerRegistry().get(context.guild)
                                 manager.loadAndPlay(context, result.info.uri)
                             } else {
                                 context.send().error("You're not in a voice channel anymore!").queue()

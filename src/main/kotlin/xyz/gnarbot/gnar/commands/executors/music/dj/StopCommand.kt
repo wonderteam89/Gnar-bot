@@ -9,7 +9,7 @@ import xyz.gnarbot.gnar.commands.Scope
 import xyz.gnarbot.gnar.utils.Context
 
 @Command(
-        aliases = arrayOf("stop"),
+        aliases = arrayOf("stop", "reset"),
         description = "Stop and clear the music player.",
         category = Category.MUSIC,
         scope = Scope.VOICE,
@@ -17,14 +17,14 @@ import xyz.gnarbot.gnar.utils.Context
 )
 class StopCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {
-        val botChannel = context.guild.selfMember.voiceState.channel
-        if (botChannel == null) {
-            context.send().error("The bot is not currently in a channel.\n" +
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+        if (manager == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
                     "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
             return
         }
 
-        context.guildData.musicManager.reset()
+        manager.destroy()
 
         context.send().embed("Stop Playback") {
             setColor(Bot.CONFIG.musicColor)

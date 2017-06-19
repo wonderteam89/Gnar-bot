@@ -15,17 +15,13 @@ import xyz.gnarbot.gnar.utils.Context;
 public class SaveCommand extends CommandExecutor {
     @Override
     public void execute(Context context, String[] args) {
-        boolean force = false;
+        boolean clear = false;
         if (args.length > 0) {
-            force = Boolean.parseBoolean(args[0]);
+            clear = Boolean.parseBoolean(args[0]);
         }
 
-        Bot.DATABASE.pushToDatabase(force);
+        Bot.DATABASE.pushToDatabase(clear);
 
-        if (Bot.getGuildDataMap().size() == 0) {
-            context.send().info("Saved and released objects from memory.").queue();
-        } else {
-            context.send().info("Unable to save and release " + Bot.getGuildDataMap().size() + " GD objects.").queue();
-        }
+        context.send().info("Saved data to database.").queue();
     }
 }

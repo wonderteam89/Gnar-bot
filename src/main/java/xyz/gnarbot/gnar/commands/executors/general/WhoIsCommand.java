@@ -27,7 +27,13 @@ public class WhoIsCommand extends CommandExecutor {
             if (!mentioned.isEmpty()) {
                 member = context.getGuild().getMember(mentioned.get(0));
             } else {
-                member = context.getGuildData().getMemberByName(StringUtils.join(args, " "), true);
+                String name = StringUtils.join(args);
+
+                List<Member> members = context.getGuild().getMembersByName(name, true);
+                if (members.isEmpty()) {
+                    members = context.getGuild().getMembersByNickname(name, true);
+                }
+                member = members.isEmpty() ? null : members.get(0);
             }
         }
 

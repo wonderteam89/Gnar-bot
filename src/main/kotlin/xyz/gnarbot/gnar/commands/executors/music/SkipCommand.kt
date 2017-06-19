@@ -16,7 +16,12 @@ import xyz.gnarbot.gnar.utils.Context
 )
 class SkipCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {
-        val manager = context.guildData.musicManager
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+        if (manager == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
+                    "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
+            return
+        }
 
         if (!(context.member.hasPermission(Permission.MANAGE_CHANNEL)
                 || manager.player.playingTrack.userData == context.member)) {
@@ -24,11 +29,7 @@ class SkipCommand : CommandExecutor() {
             return
         }
 
-        if (manager.scheduler.queue.isEmpty()) {
-            context.guildData.musicManager.reset()
-        } else {
-            manager.scheduler.nextTrack()
-        }
+        manager.scheduler.nextTrack()
 
         context.send().embed("Skip Current Track") {
             setColor(Bot.CONFIG.musicColor)

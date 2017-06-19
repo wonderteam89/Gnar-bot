@@ -12,7 +12,6 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import xyz.gnarbot.gnar.Bot;
 import xyz.gnarbot.gnar.commands.CommandDispatcher;
-import xyz.gnarbot.gnar.guilds.GuildData;
 
 public class BotListener extends ListenerAdapter {
     @Override
@@ -24,7 +23,7 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        Bot.getGuildDataMap().remove(event.getGuild().getIdLong());
+        Bot.getOptionRegistry().ofGuild(event.getGuild().getIdLong()).delete();
     }
 
     @Override
@@ -49,8 +48,7 @@ public class BotListener extends ListenerAdapter {
             if (botChannel == null || !channelLeft.equals(botChannel)) return;
 
             if (botChannel.getMembers().size() == 1) {
-                GuildData data = Bot.getGuildData(event.getGuild());
-                data.getMusicManager().reset();
+                Bot.getPlayerRegistry().destroy(guild);
             }
         }
     }

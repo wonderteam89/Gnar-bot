@@ -5,6 +5,7 @@ import xyz.gnarbot.gnar.commands.Category
 import xyz.gnarbot.gnar.commands.Command
 import xyz.gnarbot.gnar.commands.CommandExecutor
 import xyz.gnarbot.gnar.commands.Scope
+import xyz.gnarbot.gnar.music.MusicManager
 import xyz.gnarbot.gnar.utils.Context
 
 @Command(
@@ -15,11 +16,9 @@ import xyz.gnarbot.gnar.utils.Context
         category = Category.MUSIC
 )
 class PlayCommand : CommandExecutor() {
-    val footnote = "You can search and pick results using _youtube or _soundcloud while in a channel."
+    val footnote = "\uD83D\uDD0D You can search and pick results using _youtube or _soundcloud while in a channel."
 
     override fun execute(context: Context, args: Array<String>) {
-        val manager = context.guildData.musicManager
-        
         val botChannel = context.guild.selfMember.voiceState.channel
         val userChannel = context.member.voiceState.channel
 
@@ -29,6 +28,14 @@ class PlayCommand : CommandExecutor() {
         }
 
         if (args.isEmpty()) {
+            val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+
+            if (manager == null) {
+                context.send().error("The player is not currently playing anything in this guild.\n" +
+                        "\uD83C\uDFB6` _play (song/url)` in a channel to start playing some music!").queue()
+                return
+            }
+
             if (manager.player.isPaused) {
                 manager.player.isPaused = false
                 context.send().embed("Play Music") {
@@ -47,6 +54,7 @@ class PlayCommand : CommandExecutor() {
         }
 
         if ("https://" in args[0] || "http://" in args[0]) {
+            val manager = Bot.getPlayerRegistry().get(context.guild)
             manager.loadAndPlay(context, args[0], footnote)
         } else {
             val query = args.joinToString(" ").trim()
@@ -65,7 +73,17 @@ class PlayCommand : CommandExecutor() {
                 return
             }
 
-            Bot.getCommandRegistry().getCommand("youtube").execute(context, args)
+            MusicManager.search("ytsearch:$query", 1) { results ->
+                if (results.isEmpty()) {
+                    context.send().error("No YouTube results returned for `${query.replace('+', ' ')}`.").queue()
+                    return@search
+                }
+
+                val result = results[0]
+
+                val manager = Bot.getPlayerRegistry().get(context.guild)
+                manager.loadAndPlay(context, result.info.uri, footnote)
+            }
         }
     }
 }

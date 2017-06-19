@@ -20,13 +20,31 @@ import java.util.concurrent.TimeUnit
 )
 class VoteSkipCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {
-        val manager = context.guildData.musicManager
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+
+        if (manager == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
+                    "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
+            return
+        }
 
         val member = context.guild.getMember(context.message.author)
 
-        if (manager.player.playingTrack == null) {
-            context.send().error("There isn't a song playing.").queue()
+        val botChannel = context.guild.selfMember.voiceState.channel
+        if (botChannel == null) {
+            context.send().error("The bot is not currently in a channel.\n"
+                    + "\uD83C\uDFB6 `_play (song/url)` to start playing some music!\n"
+                    + "\uD83E\uDD16 The bot will automatically join your channel.").queue()
             return
+        }
+
+        if (botChannel != member.voiceState.channel) {
+            context.send().error("You're not in the same channel as the bot.").queue()
+            return
+        }
+
+        if (manager.player.playingTrack == null) {
+            context.send().error("The bot isn't playing anything.").queue()
         }
 
         if (member.voiceState.isDeafened) {
@@ -81,11 +99,7 @@ class VoteSkipCommand : CommandExecutor() {
                         buildString {
                             if (skip > stay) {
                                 appendln("The vote has passed! The song has been skipped.")
-                                if (manager.scheduler.queue.isEmpty()) {
-                                    context.guildData.musicManager.reset()
-                                } else {
-                                    manager.scheduler.nextTrack()
-                                }
+                                manager.scheduler.nextTrack()
                             } else {
                                 appendln("The vote has failed! The song will stay.")
                             }

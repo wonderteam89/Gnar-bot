@@ -20,7 +20,7 @@ import xyz.gnarbot.gnar.utils.ln
         permissions = arrayOf(Permission.ADMINISTRATOR)
 )
 class IgnoreCommand : CommandExecutor() {
-    public override fun execute(context: Context, args: Array<String>) {
+    override fun execute(context: Context, args: Array<String>) {
         if (args.isEmpty()) {
             context.send().embed("Ignore Management") {
                 description {
@@ -46,7 +46,9 @@ class IgnoreCommand : CommandExecutor() {
                     if (!mentioned.isEmpty()) {
                         member = context.guild.getMember(mentioned[0])
                     } else {
-                        member = context.guildData.getMemberByName(StringUtils.join(args.copyOfRange(1, args.size), " "), true)
+                        val name = StringUtils.join(args.copyOfRange(1, args.size))
+                        member = context.guild.getMembersByName(name, true).firstOrNull() ?:
+                                context.guild.getMembersByNickname(name, true).firstOrNull()
                     }
                 }
 
@@ -60,7 +62,7 @@ class IgnoreCommand : CommandExecutor() {
                     return
                 }
 
-                context.guildData.options.ignoredUsers.let {
+                context.guildOptions.ignoredUsers.let {
                     if (it.contains(member.user.id)) {
                         it.remove(member.user.id)
 
@@ -91,7 +93,7 @@ class IgnoreCommand : CommandExecutor() {
                     if (!mentioned.isEmpty()) {
                         channel = mentioned[0]
                     } else {
-                        val channels = context.guildData.guild.getTextChannelsByName(StringUtils.join(args.copyOfRange(1, args.size), " "), true)
+                        val channels = context.guild.getTextChannelsByName(StringUtils.join(args.copyOfRange(1, args.size), " "), true)
                         if (channels.isEmpty()) {
                             context.send().error("You did not mention a valid channel.").queue()
                             return
@@ -100,7 +102,7 @@ class IgnoreCommand : CommandExecutor() {
                     }
                 }
 
-                context.guildData.options.ignoredChannels.let {
+                context.guildOptions.ignoredChannels.let {
                     if (it.contains(channel.id)) {
                         it.remove(channel.id)
 
@@ -124,7 +126,7 @@ class IgnoreCommand : CommandExecutor() {
                 context.send().embed("Ignored Entities") {
                     field("Users") {
                         buildString {
-                            context.guildData.options.ignoredUsers.let {
+                            context.guildOptions.ignoredUsers.let {
                                 if (it.isEmpty()) {
                                     append("None of the users are ignored.")
                                 } else it.forEach {
@@ -135,7 +137,7 @@ class IgnoreCommand : CommandExecutor() {
                     }
                     field("Channel") {
                         buildString {
-                            context.guildData.options.ignoredChannels.let {
+                            context.guildOptions.ignoredChannels.let {
                                 if (it.isEmpty()) {
                                     append("None of the channels are ignored.")
                                 } else it.forEach {

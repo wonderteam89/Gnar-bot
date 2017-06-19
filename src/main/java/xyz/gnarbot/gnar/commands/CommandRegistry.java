@@ -12,7 +12,6 @@ import xyz.gnarbot.gnar.commands.executors.mod.ManageCommandsCommand;
 import xyz.gnarbot.gnar.commands.executors.mod.PruneCommand;
 import xyz.gnarbot.gnar.commands.executors.music.*;
 import xyz.gnarbot.gnar.commands.executors.music.dj.PauseCommand;
-import xyz.gnarbot.gnar.commands.executors.music.dj.ResetCommand;
 import xyz.gnarbot.gnar.commands.executors.music.dj.RestartCommand;
 import xyz.gnarbot.gnar.commands.executors.music.dj.StopCommand;
 import xyz.gnarbot.gnar.commands.executors.music.search.PlayCommand;
@@ -135,7 +134,6 @@ public class CommandRegistry {
             register(new QueueCommand());
             register(new RestartCommand());
             register(new RepeatCommand());
-            register(new ResetCommand());
             register(new VoteSkipCommand());
             register(new VolumeCommand());
             register(new SeekCommand());

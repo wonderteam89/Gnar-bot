@@ -19,12 +19,23 @@ import xyz.gnarbot.gnar.utils.ln
 )
 class SeekCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {
-        val manager = context.guildData.musicManager
+        val manager = Bot.getPlayerRegistry().getExisting(context.guild)
+
+        if (manager == null) {
+            context.send().error("The player is not currently playing anything in this guild.\n" +
+                    "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
+            return
+        }
 
         val botChannel = context.guild.selfMember.voiceState.channel
         if (botChannel == null) {
-            context.send().error("The bot is not currently in a channel.\n" +
-                    "\uD83C\uDFB6` _play (song/url)` to start playing some music!").queue()
+            context.send().error("The bot is not currently in a channel.\n"
+                    + "\uD83C\uDFB6 `_play (song/url)` to start playing some music!\n"
+                    + "\uD83E\uDD16 The bot will automatically join your channel.").queue()
+            return
+        }
+        if (botChannel != context.member.voiceState.channel) {
+            context.send().error("You're not in the same channel as the bot.").queue()
             return
         }
 
@@ -54,7 +65,7 @@ class SeekCommand : CommandExecutor() {
                         append("`(time)` • Set the time marker of the player.").ln()
                     }
                 }
-                footer { "Time arguments examples: `1 hour 2 seconds` `1m30s` `2 minutes`" }
+                footer { "Time arguments examples: 1 hour 2 seconds, 1m30s, 2min" }
             }.action().queue()
             return
         }
