@@ -97,7 +97,7 @@ object CommandDispatcher {
             return false
         }
 
-        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.donor && !Bot.CONFIG.donors.contains(context.guild.idLong)) {
+        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.donor && !context.guildOptions.isPremium()) {
             if (!isIgnored) context.send().embed("Donators Only") {
                 setColor(Color.ORANGE)
                 description {

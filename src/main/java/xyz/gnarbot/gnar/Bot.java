@@ -47,6 +47,8 @@ public final class Bot {
 
         LOG.info("Initializing the Discord bot.");
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> DATABASE.pushToDatabase(true)));
+
         LOG.info("Name:\t" + CONFIG.getName());
         LOG.info("JDAs:\t" + KEYS.getShards());
         LOG.info("Prefix:\t" + CONFIG.getPrefix());

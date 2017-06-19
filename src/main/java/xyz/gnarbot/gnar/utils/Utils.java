@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class Utils {
     public static final Pattern TIMESTAMP_PATTERN =
-            Pattern.compile("(-?\\d+)\\s*((?:h(?:our(?:s)?)?)|(?:m(?:in(?:ute(?:s)?)?)?)|(?:s(?:ec(?:ond(?:s)?)?)?))?");
+            Pattern.compile("(-?\\d+)\\s*((?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:ute(?:s)?)?)?)|(?:s(?:ec(?:ond(?:s)?)?)?))?");
 
     public static long parseTimestamp(String s) {
         s = s.toLowerCase();
@@ -33,6 +33,11 @@ public class Utils {
             if (unitStr == null) {
                 unit = TimeUnit.SECONDS;
             } else switch (unitStr) {
+                case "d":
+                case "day":
+                case "days":
+                    unit = TimeUnit.DAYS;
+                    break;
                 case "h":
                 case "hour":
                 case "hours":

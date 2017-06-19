@@ -23,8 +23,21 @@ class SkipCommand : CommandExecutor() {
             return
         }
 
-        if (!(context.member.hasPermission(Permission.MANAGE_CHANNEL)
-                || manager.player.playingTrack.userData == context.member)) {
+        val botChannel = context.guild.selfMember.voiceState.channel
+        if (botChannel == null) {
+            context.send().error("The bot is not currently in a channel.\n"
+                    + "\uD83C\uDFB6 `_play (song/url)` to start playing some music!\n"
+                    + "\uD83E\uDD16 The bot will automatically join your channel.").queue()
+            return
+        }
+
+        if (botChannel != context.member.voiceState.channel) {
+            context.send().error("You're not in the same channel as the bot.").queue()
+            return
+        }
+
+        if (!(manager.player.playingTrack.userData == context.member
+                || context.member != null && context.member.hasPermission(botChannel, Permission.MANAGE_CHANNEL))) {
             context.send().error("You did not request this track.").queue()
             return
         }

@@ -5,8 +5,10 @@ import xyz.gnarbot.gnar.commands.CommandExecutor;
 import xyz.gnarbot.gnar.utils.Context;
 import xyz.gnarbot.gnar.utils.EmbedUtils;
 
-@Command(aliases = "ping",
-        description = "Show the bot's current response time.")
+@Command(
+        aliases = "ping",
+        description = "Show the bot's current response time."
+)
 public class PingCommand extends CommandExecutor {
     @Override
     public void execute(Context context, String[] args) {

@@ -5,8 +5,6 @@ import xyz.gnarbot.gnar.commands.Command;
 import xyz.gnarbot.gnar.commands.CommandExecutor;
 import xyz.gnarbot.gnar.utils.Context;
 
-import java.util.Random;
-
 @Command(
         aliases = {"roll"},
         usage = "-max_value",
@@ -24,7 +22,7 @@ public class RollCommand extends CommandExecutor {
 
                 context.send().embed("Roll a Number")
                         .description(() -> "You rolled a **"
-                                + new Random().nextInt(Integer.valueOf(args[0]))
+                                + (Math.random() * Integer.valueOf(args[0]))
                                 + "** from range **[0 to " + args[0]+ "]**.")
                         .action().queue();
 

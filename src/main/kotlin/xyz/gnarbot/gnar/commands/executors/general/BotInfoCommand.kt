@@ -32,7 +32,8 @@ class BotInfoCommand : CommandExecutor() {
         val guildData = Bot.getOptionRegistry().guildCache.size()
         var guilds = 0
 
-        var users = 0
+        val users = Bot.getShards().flatMap { it.jda.users }.distinct()
+        val userCount = users.size
         var offline = 0
         var online = 0
         var inactive = 0
@@ -55,8 +56,6 @@ class BotInfoCommand : CommandExecutor() {
                     voiceConnections++
                 }
             }
-
-            users += shard.jda.users.size
             textChannels += shard.jda.textChannels.size
             voiceChannels += shard.jda.voiceChannels.size
         }
@@ -78,7 +77,7 @@ class BotInfoCommand : CommandExecutor() {
 
             field("Users", true) {
                 buildString {
-                    append("Total: ").append(users).ln()
+                    append("Total: ").append(userCount).ln()
                     append("Online: ").append(online).ln()
                     append("Offline: ").append(offline).ln()
                     append("Inactive: ").append(inactive).ln()

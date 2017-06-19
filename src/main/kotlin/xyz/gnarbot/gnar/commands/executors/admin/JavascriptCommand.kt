@@ -27,7 +27,9 @@ class JavascriptCommand : CommandExecutor() {
 
         val scope = SimpleScriptContext()
 
-        scope.getBindings(ScriptContext.ENGINE_SCOPE).put("context", context)
+        scope.getBindings(ScriptContext.ENGINE_SCOPE).apply {
+            put("context", context)
+        }
 
         context.send().embed("JavaScript") {
             field("Running", false) { script }

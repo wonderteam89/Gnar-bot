@@ -45,8 +45,10 @@ public class CommandRegistry {
         register(new UrbanDictionaryCommand());
         register(new UptimeCommand());
         register(new WhoIsCommand());
+        register(new GuildInfoCommand());
         register(new BotInfoCommand());
         register(new DonateCommand());
+        register(new RedeemCommand());
         //End General Commands
 
         //Fun Commands
@@ -108,9 +110,8 @@ public class CommandRegistry {
         register(new GroovyCommand());
         register(new ShardInfoCommand());
         register(new ThrowError());
-        //register(new UpdateCommand());
-//        register(new RestartBotCommand());
-        register(new ReloadConfig());
+        register(new GenerateKeyCommand());
+        register(new ReloadConfigCommand());
         register(new EmoteListCommand());
 
 

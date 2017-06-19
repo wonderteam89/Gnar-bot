@@ -7,9 +7,11 @@ import xyz.gnarbot.gnar.commands.CommandExecutor
 import xyz.gnarbot.gnar.utils.Context
 import java.util.*
 
-@Command(aliases = arrayOf("dialog"),
+@Command(
+        aliases = arrayOf("dialog"),
         usage = "(words...)",
-        description = "Make some of that Windows ASCII art!")
+        description = "Make some of that Windows ASCII art!"
+)
 class DialogCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {
         val lines = WordUtils

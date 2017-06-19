@@ -34,7 +34,7 @@ public class Database {
             if (r.dbList().<List<String>>run(conn).contains(name)) {
                 LOG.info("Connected to database.");
             } else {
-                LOG.info("Database of " + name + " is not present. Closing connection.");
+                LOG.error("Database of " + name + " is not present. Closing connection.");
                 close();
             }
         } catch (ReqlDriverError e) {
@@ -76,6 +76,21 @@ public class Database {
 
     public void deleteGuildOptions(String id) {
         if (isOpen()) r.db(name).table("guilds").get(id)
+                .delete()
+                .runNoReply(conn);
+    }
+
+    public PremiumKey getPremiumKey(String id) {
+        return isOpen() ? r.db(name).table("keys").get(id).run(conn, PremiumKey.class) : null;
+    }
+
+    public void savePremiumKey(PremiumKey key) {
+        if (isOpen()) r.db(name).table("keys").insert(key)
+                .runNoReply(conn);
+    }
+
+    public void deletePremiumKey(String id) {
+        if (isOpen()) r.db(name).table("keys").get(id)
                 .delete()
                 .runNoReply(conn);
     }

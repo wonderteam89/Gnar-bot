@@ -57,7 +57,7 @@ public class WhoIsCommand extends CommandExecutor {
                 .field("Roles", false, () -> {
                     StringBuilder sb = new StringBuilder();
                     for (Role role : member.getRoles()) {
-                        sb.append("• ").append(role.getName()).append('\n');
+                        sb.append(" • ").append(role.getName()).append('\n');
                     }
                     return sb.toString();
                 })

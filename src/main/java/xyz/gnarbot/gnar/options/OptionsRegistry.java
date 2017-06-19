@@ -21,7 +21,7 @@ public class OptionsRegistry {
             if (options == null) {
                 options = new GuildOptions(Long.toUnsignedString(id));
             } else {
-                Database.LOG.info("Loaded " + options + " from database.");
+                Database.LOG.debug("Loaded " + options + " from database.");
                 options.getDisabledCommands().removeIf(it -> !Bot.getCommandRegistry().getCommandMap().containsKey(it));
             }
             guildCache.put(id, options);

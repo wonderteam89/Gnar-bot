@@ -12,7 +12,7 @@ import xyz.gnarbot.gnar.utils.Context;
         category = Category.NONE,
         ignorable = false
 )
-public class ReloadConfig extends CommandExecutor {
+public class ReloadConfigCommand extends CommandExecutor {
     @Override
     public void execute(Context context, String[] args) {
         Bot.CONFIG.reload();
