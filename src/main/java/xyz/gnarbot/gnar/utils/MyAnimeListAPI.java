@@ -19,8 +19,8 @@ public class MyAnimeListAPI {
     private String username, password;
     private boolean loggedIn = false;
     private String apiStart = "https://myanimelist.net/api/";
-    private final String SEARCH_ANIME = "anime/search.xml";
-    private final String SEARCH_MANGA = "manga/search.xml";
+    public final String SEARCH_ANIME = "anime/search.xml";
+    public final String SEARCH_MANGA = "manga/search.xml";
     private long lastLogIn;
 
     public MyAnimeListAPI(String username, String password) {
@@ -30,9 +30,10 @@ public class MyAnimeListAPI {
         loggedIn = attemptLogIn();
         LOG.info("Log in state: " + loggedIn);
 
-        makeRequest(SEARCH_ANIME, "q=Pokemon");
-        makeRequest(SEARCH_MANGA, "q=Berserk");
+    }
 
+    public boolean isLoggedIn() {
+        return loggedIn;
     }
 
     public boolean attemptLogIn(){
@@ -43,7 +44,6 @@ public class MyAnimeListAPI {
         try (Response response = HttpUtils.CLIENT.newCall(request).execute()) {
             String responseSt = response.body().string();
             JSONObject jso = convertXML(responseSt);
-            LOG.info(responseSt);
             response.close();
             if (jso.has("user") && jso.getJSONObject("user").has("id")) {
                 lastLogIn = System.currentTimeMillis();
@@ -63,7 +63,6 @@ public class MyAnimeListAPI {
         try (Response response = HttpUtils.CLIENT.newCall(request).execute()) {
             String responseSTR = response.body().string();
             JSONObject jso = convertXML(responseSTR);
-            LOG.info(responseSTR);
             response.close();
 
             return jso;

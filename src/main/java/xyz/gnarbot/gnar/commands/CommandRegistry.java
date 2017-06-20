@@ -73,6 +73,8 @@ public class CommandRegistry {
 
         register(new PandoraBotCommand());
         register(new MemeCommand());
+        register(new AnimeSearchCommand());
+        register(new MangaSearchCommand());
         //End Fun Commands
 
         //Mod Commands

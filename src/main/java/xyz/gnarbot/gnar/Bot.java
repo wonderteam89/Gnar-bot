@@ -68,6 +68,10 @@ public final class Bot {
         malAPI = new MyAnimeListAPI(KEYS.getMalUser(), KEYS.getMalPass());
     }
 
+    public static MyAnimeListAPI getMALAPI() {
+        return malAPI;
+    }
+
     public static CommandRegistry getCommandRegistry() {
         return commandRegistry;
     }
