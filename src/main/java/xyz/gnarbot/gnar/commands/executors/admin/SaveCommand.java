@@ -8,8 +8,7 @@ import xyz.gnarbot.gnar.utils.Context;
 @Command(
         aliases = "save",
         admin = true,
-        category = Category.NONE,
-        ignorable = false
+        category = Category.NONE
 )
 public class SaveCommand extends CommandExecutor {
     @Override

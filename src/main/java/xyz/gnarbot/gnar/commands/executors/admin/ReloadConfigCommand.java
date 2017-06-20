@@ -9,8 +9,7 @@ import xyz.gnarbot.gnar.utils.Context;
 @Command(
         aliases = "reloadConfig",
         admin = true,
-        category = Category.NONE,
-        ignorable = false
+        category = Category.NONE
 )
 public class ReloadConfigCommand extends CommandExecutor {
     @Override

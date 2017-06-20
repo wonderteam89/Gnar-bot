@@ -16,8 +16,7 @@ import java.util.UUID;
 @Command(
         aliases = "genkey",
         admin = true,
-        category = Category.NONE,
-        ignorable = false
+        category = Category.NONE
 )
 public class GenerateKeyCommand extends CommandExecutor {
     @Override

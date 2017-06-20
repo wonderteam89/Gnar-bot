@@ -157,6 +157,7 @@ object CommandDispatcher {
                 || context.guildOptions.ignoredChannels.contains(context.channel.id)
                 || member.roles.any { context.guildOptions.ignoredRoles.contains(it.id) })
                 && !member.hasPermission(Permission.ADMINISTRATOR)
+                && !member.isAdmin()
     }
 
     private fun Member.isAdmin() = user.idLong in Bot.CONFIG.admins

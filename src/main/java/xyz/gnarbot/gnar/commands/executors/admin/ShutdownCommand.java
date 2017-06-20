@@ -10,8 +10,7 @@ import xyz.gnarbot.gnar.utils.Context;
 @Command(
         aliases = "shutdown",
         admin = true,
-        category = Category.NONE,
-        ignorable = false
+        category = Category.NONE
 )
 public class ShutdownCommand extends CommandExecutor {
     @Override

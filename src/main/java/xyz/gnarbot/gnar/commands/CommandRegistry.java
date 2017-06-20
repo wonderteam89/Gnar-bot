@@ -7,6 +7,7 @@ import xyz.gnarbot.gnar.commands.executors.games.GameLookupCommand;
 import xyz.gnarbot.gnar.commands.executors.games.OverwatchLookupCommand;
 import xyz.gnarbot.gnar.commands.executors.general.*;
 import xyz.gnarbot.gnar.commands.executors.media.*;
+import xyz.gnarbot.gnar.commands.executors.mod.AutoroleCommand;
 import xyz.gnarbot.gnar.commands.executors.mod.IgnoreCommand;
 import xyz.gnarbot.gnar.commands.executors.mod.ManageCommandsCommand;
 import xyz.gnarbot.gnar.commands.executors.mod.PruneCommand;
@@ -77,6 +78,7 @@ public class CommandRegistry {
         register(new ManageCommandsCommand());
         register(new IgnoreCommand());
         register(new PruneCommand());
+        register(new AutoroleCommand());
         //End Mod Commands
 
         //Testing Commands

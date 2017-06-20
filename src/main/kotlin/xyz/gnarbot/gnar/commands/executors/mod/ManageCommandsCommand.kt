@@ -14,8 +14,7 @@ import xyz.gnarbot.gnar.utils.ln
         description = "Manage usage of commands.",
         toggleable = false,
         category = Category.MODERATION,
-        permissions = arrayOf(Permission.ADMINISTRATOR),
-        ignorable = false
+        permissions = arrayOf(Permission.ADMINISTRATOR)
 )
 class ManageCommandsCommand : CommandExecutor() {
     override fun execute(context: Context, args: Array<String>) {

@@ -27,9 +27,6 @@ public @interface Command {
     /** @return If the command requires the user to be the bot administrator */
     boolean admin() default false;
 
-    /** @return If the command can be ignored. */
-    boolean ignorable() default true;
-
     /** @return If the command requires the user to be a donator. */
     boolean donor() default false;
 

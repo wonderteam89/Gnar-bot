@@ -16,7 +16,6 @@ import xyz.gnarbot.gnar.utils.ln
         aliases = arrayOf("ignore"),
         usage = "(user|channel|role|list)",
         description = "Ignore users or channels.",
-        ignorable = false,
         category = Category.MODERATION,
         scope = Scope.TEXT,
         permissions = arrayOf(Permission.ADMINISTRATOR)
@@ -147,6 +146,11 @@ class IgnoreCommand : CommandExecutor() {
                         }
                         role = roles[0]
                     }
+                }
+
+                if (role == context.guild.publicRole) {
+                    context.send().error("You can't ignore the public role!").queue()
+                    return
                 }
 
                 context.guildOptions.ignoredRoles.let {
