@@ -1,13 +1,15 @@
 package xyz.gnarbot.gnar.utils;
 
+import okhttp3.Credentials;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.json.XML;
 
 import java.io.IOException;
+
+import static xyz.gnarbot.gnar.Bot.LOG;
 
 /**
  * Created by Gatt on 20/06/2017.
@@ -17,28 +19,57 @@ public class MyAnimeListAPI {
     private String username, password;
     private boolean loggedIn = false;
     private String apiStart = "https://myanimelist.net/api/";
+    private final String SEARCH_ANIME = "anime/search.xml";
+    private final String SEARCH_MANGA = "manga/search.xml";
+    private long lastLogIn;
 
     public MyAnimeListAPI(String username, String password) {
+        LOG.info("New MAL Class created");
         this.username = username;
         this.password = password;
         loggedIn = attemptLogIn();
+        LOG.info("Log in state: " + loggedIn);
+
+        makeRequest(SEARCH_ANIME, "q=Pokemon");
+        makeRequest(SEARCH_MANGA, "q=Berserk");
+
     }
 
     public boolean attemptLogIn(){
+        LOG.info("Attempting to log in.");
         Request request = new Request.Builder().url(apiStart + "account/verify_credentials.xml")
-                .header("User-Agent", "Gnar")
-                .header("Content-Type", "text/plain")
-                .addHeader("-u", username + ":" + password)
+                .header("Authorization", Credentials.basic(username, password))
                 .build();
         try (Response response = HttpUtils.CLIENT.newCall(request).execute()) {
-            JSONObject jso = convertXML(response.body().string());
-
+            String responseSt = response.body().string();
+            JSONObject jso = convertXML(responseSt);
+            LOG.info(responseSt);
             response.close();
-
-            return jso.has("user") && jso.getJSONObject("user").has("id");
+            if (jso.has("user") && jso.getJSONObject("user").has("id")) {
+                lastLogIn = System.currentTimeMillis();
+                return true;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+        return false;
+    }
+
+    public JSONObject makeRequest(String target, String arguments){
+        Request request = new Request.Builder().url(apiStart + target + "?" + arguments)
+                .header("Authorization", Credentials.basic(username, password))
+                .build();
+        try (Response response = HttpUtils.CLIENT.newCall(request).execute()) {
+            String responseSTR = response.body().string();
+            JSONObject jso = convertXML(responseSTR);
+            LOG.info(responseSTR);
+            response.close();
+
+            return jso;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

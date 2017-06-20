@@ -13,6 +13,7 @@ import xyz.gnarbot.gnar.listeners.GuildCountListener;
 import xyz.gnarbot.gnar.music.PlayerRegistry;
 import xyz.gnarbot.gnar.options.OptionsRegistry;
 import xyz.gnarbot.gnar.utils.DiscordLogBack;
+import xyz.gnarbot.gnar.utils.MyAnimeListAPI;
 import xyz.gnarbot.gnar.utils.SimpleLogToSLF4JAdapter;
 
 import java.io.File;
@@ -41,6 +42,8 @@ public final class Bot {
 
     private static final List<Shard> shards = new ArrayList<>();
 
+    private static MyAnimeListAPI malAPI;
+
     public static void main(String[] args) {
         SimpleLogToSLF4JAdapter.install();
         DiscordLogBack.enable();
@@ -61,7 +64,8 @@ public final class Bot {
             shard.build();
         }
 
-        LOG.info("The bot is now fully connected to Discord.");
+        LOG.info("The bot is now fully connected to Discord.\nPreparing for MAL with Credentials: " + KEYS.getMalUser() + " and " + KEYS.getMalPass());
+        malAPI = new MyAnimeListAPI(KEYS.getMalUser(), KEYS.getMalPass());
     }
 
     public static CommandRegistry getCommandRegistry() {
