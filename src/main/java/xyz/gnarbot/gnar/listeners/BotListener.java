@@ -16,9 +16,8 @@ import xyz.gnarbot.gnar.commands.CommandDispatcher;
 public class BotListener extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        if (event.getMessage().getContent().startsWith(Bot.CONFIG.getPrefix())) {
-            CommandDispatcher.INSTANCE.handleEvent(event);
-        }
+        System.out.println("message");
+        CommandDispatcher.INSTANCE.handleEvent(event);
     }
 
     @Override

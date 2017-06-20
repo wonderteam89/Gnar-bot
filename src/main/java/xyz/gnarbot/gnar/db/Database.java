@@ -9,14 +9,11 @@ import xyz.gnarbot.gnar.options.GuildOptions;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.concurrent.*;
 
 import static com.rethinkdb.RethinkDB.r;
 
 public class Database {
     public static final Logger LOG = LoggerFactory.getLogger("Database");
-    private final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
-    private final ScheduledFuture<?> task;
     private final Connection conn;
     private final String name;
 
@@ -42,8 +39,6 @@ public class Database {
         }
         this.conn = conn;
         this.name = name;
-
-        task = isOpen() ? exec.scheduleAtFixedRate(() -> pushToDatabase(true), 1, 1, TimeUnit.HOURS) : null;
     }
 
     public boolean isOpen() {
@@ -52,7 +47,6 @@ public class Database {
 
     public void close() {
         conn.close();
-        if (task != null) task.cancel(false);
     }
 
     @Nullable
@@ -60,13 +54,6 @@ public class Database {
         return isOpen() ? r.db(name).table("guilds").get(id).run(conn, GuildOptions.class) : null;
     }
 
-    public void pushToDatabase(boolean free) {
-        LOG.info("Pushing to database.");
-        Bot.getOptionRegistry().save();
-        if (free) {
-            Bot.getOptionRegistry().clear();
-        }
-    }
 
     public void saveGuildOptions(GuildOptions guildData) {
         if (isOpen()) r.db(name).table("guilds").insert(guildData)
@@ -80,30 +67,18 @@ public class Database {
                 .runNoReply(conn);
     }
 
-    public PremiumKey getPremiumKey(String id) {
-        return isOpen() ? r.db(name).table("keys").get(id).run(conn, PremiumKey.class) : null;
+    public Key getPremiumKey(String id) {
+        return isOpen() ? r.db(name).table("keys").get(id).run(conn, Key.class) : null;
     }
 
-    public void savePremiumKey(PremiumKey key) {
+    public void savePremiumKey(Key key) {
         if (isOpen()) r.db(name).table("keys").insert(key)
                 .runNoReply(conn);
     }
 
-    public void deletePremiumKey(String id) {
+    public void deleteKey(String id) {
         if (isOpen()) r.db(name).table("keys").get(id)
                 .delete()
                 .runNoReply(conn);
-    }
-
-    public ScheduledExecutorService getExecutor() {
-        return exec;
-    }
-
-    public void queue(Callable<?> action) {
-        getExecutor().submit(action);
-    }
-
-    public void queue(Runnable runnable) {
-        getExecutor().submit(runnable);
     }
 }

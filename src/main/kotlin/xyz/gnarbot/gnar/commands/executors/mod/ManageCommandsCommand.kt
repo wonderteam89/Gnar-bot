@@ -53,6 +53,7 @@ class ManageCommandsCommand : CommandExecutor() {
                 }
 
                 context.guildOptions.disabledCommands.removeAll(list)
+                context.guildOptions.save()
 
                 context.send().info("Enabling ${list.joinToString { "`$it`" }}.").queue()
             }
@@ -86,6 +87,7 @@ class ManageCommandsCommand : CommandExecutor() {
                 }
 
                 context.guildOptions.disabledCommands.addAll(list)
+                context.guildOptions.save()
 
                 context.send().info("Disabling ${list.joinToString { "`$it`" }}.").queue()
             }
@@ -106,6 +108,7 @@ class ManageCommandsCommand : CommandExecutor() {
                 context.send().error("Invalid argument. Try `enable`, `disable`, or `list` instead.").queue()
             }
         }
+
     }
 
     private fun lookupCommand(label: String): CommandExecutor? {

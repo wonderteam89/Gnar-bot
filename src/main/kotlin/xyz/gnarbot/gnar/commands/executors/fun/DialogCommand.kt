@@ -5,7 +5,7 @@ import org.apache.commons.lang3.text.WordUtils
 import xyz.gnarbot.gnar.commands.Command
 import xyz.gnarbot.gnar.commands.CommandExecutor
 import xyz.gnarbot.gnar.utils.Context
-import java.util.*
+import xyz.gnarbot.gnar.utils.ln
 
 @Command(
         aliases = arrayOf("dialog"),
@@ -35,26 +35,41 @@ class DialogCommand : CommandExecutor() {
                             .map { "║ $it ║" }
                             .forEach { appendln(it) }
 
-                    when (Random().nextInt(4)) {
+                    when ((Math.random() * 7).toInt()) {
                         0 -> {
-                            appendln("║  ┌─────────┐  ┌────────┐  ║")
-                            appendln("║  │   Yes   │  │   No   │  ║")
-                            appendln("║  └─────────┘  └────────┘  ║")
+                            append("║  ┌─────────┐  ┌────────┐  ║").ln()
+                            append("║  │   Yes   │  │   No   │  ║").ln()
+                            append("║  └─────────┘  └────────┘  ║").ln()
                         }
                         1 -> {
-                            appendln("║ ┌─────┐  ┌──────┐  ┌────┐ ║")
-                            appendln("║ │ Yes │  │ Help │  │ No │ ║")
-                            appendln("║ └─────┘  └──────┘  └────┘ ║")
+                            append("║ ┌─────┐  ┌──────┐  ┌────┐ ║").ln()
+                            append("║ │ Yes │  │ Help │  │ No │ ║").ln()
+                            append("║ └─────┘  └──────┘  └────┘ ║").ln()
                         }
                         2 -> {
-                            appendln("║  ┌─────────────────┬───┐  ║")
-                            appendln("║  │     Confirm     │ X │  ║")
-                            appendln("║  └─────────────────┴───┘  ║")
+                            append("║  ┌─────────────────┬───┐  ║").ln()
+                            append("║  │     Confirm     │ X │  ║").ln()
+                            append("║  └─────────────────┴───┘  ║").ln()
                         }
                         3 -> {
-                            appendln("║  ┌───────────┐ ┌───────┐  ║")
-                            appendln("║  │ HELLA YES │ │ PUSSY │  ║")
-                            appendln("║  └───────────┘ └───────┘  ║")
+                            append("║  ┌──────────┬──────────┐  ║").ln()
+                            append("║  │   Accept │ Decline  │  ║").ln()
+                            append("║  └──────────┴──────────┘  ║").ln()
+                        }
+                        4 -> {
+                            append("║  ┌─────────┐ ┌─────────┐  ║").ln()
+                            append("║  │   Yes   │ │   Yes   │  ║").ln()
+                            append("║  └─────────┘ └─────────┘  ║").ln()
+                        }
+                        5 -> {
+                            append("║  ┌────┐   ┌────┐   ┌────┐ ║").ln()
+                            append("║  │ No │   │ No │   │ No │ ║").ln()
+                            append("║  └────┘   └────┘   └────┘ ║").ln()
+                        }
+                        6 -> {
+                            append("║  ┌───────────┐ ┌───────┐  ║").ln()
+                            append("║  │ HELLA YES │ │ PUSSY │  ║").ln()
+                            append("║  └───────────┘ └───────┘  ║").ln()
                         }
                     }
 

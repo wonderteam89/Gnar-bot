@@ -17,7 +17,7 @@ import java.time.OffsetDateTime
         permissions = arrayOf(Permission.MESSAGE_MANAGE)
 )
 class PruneCommand : CommandExecutor() {
-    public override fun execute(context: Context, args: Array<String>) {
+    override fun execute(context: Context, args: Array<String>) {
         if (args.isEmpty()) {
             context.send().error("Insufficient amount of arguments.").queue()
             return
@@ -28,7 +28,7 @@ class PruneCommand : CommandExecutor() {
         val history = context.channel.history
 
         val amount = args[0].toIntOrNull()?.coerceIn(0, 100) ?: kotlin.run {
-            context.send().error("Improper arguments supplies, must be a number.").queue()
+            context.send().error("Argument must be a number.").queue()
             return
         }
 
@@ -38,25 +38,6 @@ class PruneCommand : CommandExecutor() {
         }
 
         val time = OffsetDateTime.now().minusWeeks(2)
-
-//        val messages = context.channel.iterableHistory.stream().filter { msg ->
-//            msg.creationTime.isAfter(time)
-//        }.limit(amount).toList()
-//
-//        when {
-//            messages.isNotEmpty() -> {
-//                Lists.partition(messages, 100).forEach {
-//                    context.message.textChannel.deleteMessages(it).queue()
-//                }
-//
-//                context.send().info("Attempted to delete **[${messages.size}]()** messages.\nDeleting this message in **5** seconds.")
-//                        .queue(Utils.deleteMessage(5))
-//            }
-//            else -> {
-//                context.send().info("No messages were found (that are younger than 2 weeks).\nDeleting this message in **5** seconds.")
-//                        .queue(Utils.deleteMessage(5))
-//            }
-//        }
 
         history.retrievePast(amount).queue {
             val messages = it.filter { msg ->
@@ -70,7 +51,7 @@ class PruneCommand : CommandExecutor() {
                             .queue(Utils.deleteMessage(5))
                 }
                 else -> {
-                    context.send().info("No messages were found (that are younger than 2 weeks).\nDeleting this message in **5** seconds.")
+                    context.send().info("No messages were found that are younger than 2 weeks.\nDeleting this message in **5** seconds.")
                             .queue(Utils.deleteMessage(5))
                 }
             }

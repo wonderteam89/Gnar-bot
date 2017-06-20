@@ -30,7 +30,7 @@ public final class Bot {
 
     public static final Credentials KEYS = new Credentials(new File("credentials.conf"));
     public static final BotConfiguration CONFIG = new BotConfiguration(new File("bot.conf"));
-    public static final Database DATABASE = new Database(KEYS.getDbName());
+    private static final Database DATABASE = new Database(KEYS.getDbName());
 
     protected static final GuildCountListener guildCountListener = new GuildCountListener();
     protected static final BotListener botListener = new BotListener();
@@ -50,7 +50,8 @@ public final class Bot {
 
         LOG.info("Initializing the Discord bot.");
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> DATABASE.pushToDatabase(true)));
+        LOG.info("Preparing for MAL with Credentials: " + KEYS.getMalUser() + " and " + KEYS.getMalPass());
+        malAPI = new MyAnimeListAPI(KEYS.getMalUser(), KEYS.getMalPass());
 
         LOG.info("Name:\t" + CONFIG.getName());
         LOG.info("JDAs:\t" + KEYS.getShards());
@@ -64,8 +65,11 @@ public final class Bot {
             shard.build();
         }
 
-        LOG.info("The bot is now fully connected to Discord.\nPreparing for MAL with Credentials: " + KEYS.getMalUser() + " and " + KEYS.getMalPass());
-        malAPI = new MyAnimeListAPI(KEYS.getMalUser(), KEYS.getMalPass());
+        LOG.info("The bot is now fully connected to Discord.");
+    }
+
+    public static Database db() {
+        return DATABASE;
     }
 
     public static MyAnimeListAPI getMALAPI() {

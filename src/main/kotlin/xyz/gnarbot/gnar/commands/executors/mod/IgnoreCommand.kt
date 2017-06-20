@@ -2,6 +2,7 @@ package xyz.gnarbot.gnar.commands.executors.mod
 
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Member
+import net.dv8tion.jda.core.entities.Role
 import net.dv8tion.jda.core.entities.TextChannel
 import org.apache.commons.lang3.StringUtils
 import xyz.gnarbot.gnar.commands.Category
@@ -13,7 +14,8 @@ import xyz.gnarbot.gnar.utils.ln
 
 @Command(
         aliases = arrayOf("ignore"),
-        usage = "(amount)", description = "Delete up to 100 messages.",
+        usage = "(user|channel|role|list)",
+        description = "Ignore users or channels.",
         ignorable = false,
         category = Category.MODERATION,
         scope = Scope.TEXT,
@@ -27,6 +29,7 @@ class IgnoreCommand : CommandExecutor() {
                     buildString {
                         append("`user` • Ignore/unignore a user.").ln()
                         append("`channel` • Ignore/unignore a channel.").ln()
+                        append("`role` • Ignore/unignore users with a role.").ln()
                         append("`list` • List ignored entities.")
                     }
                 }
@@ -39,14 +42,14 @@ class IgnoreCommand : CommandExecutor() {
                 val member: Member?
 
                 if (args.size < 2) {
-                    context.send().error("You did not mention a valid user.").queue()
+                    context.send().error("Please mention a valid user. ie: `_ignore user Troll`").queue()
                     return
                 } else {
                     val mentioned = context.message.mentionedUsers
-                    if (!mentioned.isEmpty()) {
+                    if (mentioned.isNotEmpty()) {
                         member = context.guild.getMember(mentioned[0])
                     } else {
-                        val name = StringUtils.join(args.copyOfRange(1, args.size))
+                        val name = StringUtils.join(args.copyOfRange(1, args.size), " ")
                         member = context.guild.getMembersByName(name, true).firstOrNull() ?:
                                 context.guild.getMembersByNickname(name, true).firstOrNull()
                     }
@@ -58,7 +61,7 @@ class IgnoreCommand : CommandExecutor() {
                 }
 
                 if (!context.member.canInteract(member)) {
-                    context.send().error("You can not interact with this member.").queue()
+                    context.send().error("You can not interact with this user.").queue()
                     return
                 }
 
@@ -81,19 +84,21 @@ class IgnoreCommand : CommandExecutor() {
                         }.action().queue()
                     }
                 }
+                context.guildOptions.save()
             }
             "channel" -> {
                 val channel: TextChannel
 
                 if (args.size < 2) {
-                    context.send().error("You did not mention a valid channel.").queue()
+                    context.send().error("Please mention a channel. ie: `_ignore channel general`").queue()
                     return
                 } else {
                     val mentioned = context.message.mentionedChannels
                     if (!mentioned.isEmpty()) {
                         channel = mentioned[0]
                     } else {
-                        val channels = context.guild.getTextChannelsByName(StringUtils.join(args.copyOfRange(1, args.size), " "), true)
+                        val name = StringUtils.join(args.copyOfRange(1, args.size), " ")
+                        val channels = context.guild.getTextChannelsByName(name, true)
                         if (channels.isEmpty()) {
                             context.send().error("You did not mention a valid channel.").queue()
                             return
@@ -121,6 +126,49 @@ class IgnoreCommand : CommandExecutor() {
                         }.action().queue()
                     }
                 }
+                context.guildOptions.save()
+            }
+            "role" -> {
+                val role: Role
+
+                if (args.size < 2) {
+                    context.send().error("Please mention a role. ie: `_ignore role Mod`").queue()
+                    return
+                } else {
+                    val mentioned = context.message.mentionedRoles
+                    if (!mentioned.isEmpty()) {
+                        role = mentioned[0]
+                    } else {
+                        val name = StringUtils.join(args.copyOfRange(1, args.size), " ")
+                        val roles = context.guild.getRolesByName(name, true)
+                        if (roles.isEmpty()) {
+                            context.send().error("You did not mention a valid role.").queue()
+                            return
+                        }
+                        role = roles[0]
+                    }
+                }
+
+                context.guildOptions.ignoredRoles.let {
+                    if (it.contains(role.id)) {
+                        it.remove(role.id)
+
+                        context.send().embed("Ignore") {
+                            description {
+                                "No longer ignoring role ${role.asMention}."
+                            }
+                        }.action().queue()
+                    } else {
+                        it.add(role.id)
+
+                        context.send().embed("Ignore") {
+                            description {
+                                "Ignored role ${role.asMention}."
+                            }
+                        }.action().queue()
+                    }
+                }
+                context.guildOptions.save()
             }
             "list" -> {
                 context.send().embed("Ignored Entities") {
@@ -146,10 +194,21 @@ class IgnoreCommand : CommandExecutor() {
                             }
                         }
                     }
+                    field("Roles") {
+                        buildString {
+                            context.guildOptions.ignoredRoles.let {
+                                if (it.isEmpty()) {
+                                    append("None of the roles are ignored.")
+                                } else it.forEach {
+                                    append(context.guild.getRoleById(it).asMention)
+                                }
+                            }
+                        }
+                    }
                 }.action().queue()
             }
             else -> {
-                context.send().error("Invalid argument. Try `user`, `channel`, or `list` instead.").queue()
+                context.send().error("Invalid argument. Try `user`, `channel`, `role`, or `list` instead.").queue()
             }
         }
     }

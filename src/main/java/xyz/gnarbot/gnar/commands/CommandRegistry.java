@@ -62,14 +62,10 @@ public class CommandRegistry {
         register(new GoodShitCommand());
         register(new EightBallCommand());
         register(new LeetifyCommand());
-        //register(new ProgressionCommand());
-        //register(new GoogleyEyesCommand());
-        //register(new ServersSharedCommand());
         register(new TextToSpeechCommand());
         register(new ReactCommand());
         register(new TriviaAnswerCommand());
         register(new TriviaCommand());
-        //register(new GraphCommand());
 
         register(new PandoraBotCommand());
         register(new MemeCommand());
@@ -104,7 +100,6 @@ public class CommandRegistry {
         //End Media Commands
 
         // Administrator commands
-        //register(new GarbageCollectCommand());
         register(new SaveCommand());
         register(new ShutdownCommand());
         register(new RestartShardsCommand());

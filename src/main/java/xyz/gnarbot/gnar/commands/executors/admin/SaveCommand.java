@@ -1,6 +1,5 @@
 package xyz.gnarbot.gnar.commands.executors.admin;
 
-import xyz.gnarbot.gnar.Bot;
 import xyz.gnarbot.gnar.commands.Category;
 import xyz.gnarbot.gnar.commands.Command;
 import xyz.gnarbot.gnar.commands.CommandExecutor;
@@ -19,9 +18,6 @@ public class SaveCommand extends CommandExecutor {
         if (args.length > 0) {
             clear = Boolean.parseBoolean(args[0]);
         }
-
-        Bot.DATABASE.pushToDatabase(clear);
-
         context.send().info("Saved data to database.").queue();
     }
 }

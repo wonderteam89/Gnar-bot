@@ -21,5 +21,4 @@ public class TriviaCommand extends CommandExecutor {
             context.send().info(TriviaQuestions.getRandomQuestion()).queue();
         }
     }
-
 }

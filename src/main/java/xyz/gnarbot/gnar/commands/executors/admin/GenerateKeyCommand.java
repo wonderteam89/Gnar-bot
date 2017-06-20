@@ -4,10 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import xyz.gnarbot.gnar.commands.Category;
 import xyz.gnarbot.gnar.commands.Command;
 import xyz.gnarbot.gnar.commands.CommandExecutor;
-import xyz.gnarbot.gnar.db.PremiumKey;
+import xyz.gnarbot.gnar.db.Key;
+import xyz.gnarbot.gnar.db.KeyType;
 import xyz.gnarbot.gnar.utils.Context;
 import xyz.gnarbot.gnar.utils.Utils;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -20,7 +22,7 @@ import java.util.UUID;
 public class GenerateKeyCommand extends CommandExecutor {
     @Override
     public void execute(Context context, String[] args) {
-        if (args.length < 2) {
+        if (args.length < 3) {
             context.send().error("Insufficient args.");
             return;
         }
@@ -37,18 +39,30 @@ public class GenerateKeyCommand extends CommandExecutor {
         if (num < 0) {
             context.send().error("Negative keys, are you drunk?").queue();
             return;
+        } else if (num > 50) {
+            num = 50;
         }
 
-        long duration = Utils.parseTimestamp(StringUtils.join(Arrays.copyOfRange(args, 1, args.length), " "));
+        KeyType type;
+        try {
+            type = KeyType.valueOf(args[1]);
+        } catch (IllegalArgumentException e) {
+            context.send().error("That's not a valid key type.").queue();
+            return;
+        }
+
+        long duration = Utils.parseTimestamp(StringUtils.join(Arrays.copyOfRange(args, 2, args.length), " "));
 
         if (duration < 0) {
             context.send().error("Negative duration, we get it you vape.").queue();
             return;
         }
 
+        long expiresBy = System.currentTimeMillis() + Duration.ofDays(30).toMillis();
+
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < num; i++) {
-            PremiumKey key = new PremiumKey(UUID.randomUUID().toString(), duration);
+            Key key = new Key(UUID.randomUUID().toString(), type, duration, expiresBy);
             builder.append(key.getId()).append('\n');
             key.save();
         }

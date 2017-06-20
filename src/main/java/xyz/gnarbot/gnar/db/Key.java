@@ -4,22 +4,34 @@ import xyz.gnarbot.gnar.Bot;
 
 import java.beans.ConstructorProperties;
 
-public class PremiumKey implements ManagedObject {
+public class Key implements ManagedObject {
     private final String id;
     private final long duration;
+    private final long expiresBy;
+    private final KeyType type;
 
-    @ConstructorProperties({"id", "duration"})
-    public PremiumKey(String id, long duration) {
+    @ConstructorProperties({"id", "type", "duration", "expiresBy"})
+    public Key(String id, KeyType type, long duration, long expiresBy) {
         this.id = id;
+        this.type = type;
         this.duration = duration;
+        this.expiresBy = expiresBy;
     }
 
     public String getId() {
         return id;
     }
 
+    public KeyType getType() {
+        return type;
+    }
+
     public long getDuration() {
         return duration;
+    }
+
+    public long getExpiresBy() {
+        return expiresBy;
     }
 
     @Override
@@ -29,11 +41,11 @@ public class PremiumKey implements ManagedObject {
 
     @Override
     public void save() {
-        Bot.DATABASE.savePremiumKey(this);
+        Bot.db().savePremiumKey(this);
     }
 
     @Override
     public void delete() {
-        Bot.DATABASE.deletePremiumKey(id);
+        Bot.db().deleteKey(id);
     }
 }

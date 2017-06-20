@@ -12,6 +12,8 @@ data class GuildOptions @ConstructorProperties("id") constructor(val id: String)
     var disabledCommands: MutableSet<String> = hashSetOf()
     var ignoredChannels: MutableSet<String> = hashSetOf()
     var ignoredUsers: MutableSet<String> = hashSetOf()
+    var ignoredRoles: MutableSet<String> = hashSetOf()
+    var autoRole: String? = null
 
     var premiumUntil: Long = 0
 
@@ -31,6 +33,6 @@ data class GuildOptions @ConstructorProperties("id") constructor(val id: String)
         }
     }
 
-    override fun save() = Bot.DATABASE.saveGuildOptions(this)
-    override fun delete() = Bot.DATABASE.deleteGuildOptions(id)
+    override fun save() = Bot.db().saveGuildOptions(this)
+    override fun delete() = Bot.db().deleteGuildOptions(id)
 }

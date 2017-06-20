@@ -29,7 +29,6 @@ class BotInfoCommand : CommandExecutor() {
         var requests = 0
         var textChannels = 0
         var voiceChannels = 0
-        val guildData = Bot.getOptionRegistry().guildCache.size()
         var guilds = 0
 
         val users = Bot.getShards().flatMap { it.jda.users }.distinct()
@@ -72,7 +71,7 @@ class BotInfoCommand : CommandExecutor() {
             field("Voice Connections", true) { voiceConnections }
 
             field("Guilds", true) { guilds }
-            field("Guild Data", true) { guildData }
+            field(true)
             field("Uptime", true) { "${d}d ${h % 24}h ${m % 60}m ${s % 60}s" }
 
             field("Users", true) {

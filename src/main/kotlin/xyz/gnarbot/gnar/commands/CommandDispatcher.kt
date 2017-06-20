@@ -3,6 +3,7 @@ package xyz.gnarbot.gnar.commands
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 import net.dv8tion.jda.core.Permission
+import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.exceptions.PermissionException
 import xyz.gnarbot.gnar.Bot
@@ -17,7 +18,7 @@ object CommandDispatcher {
             return
         }
 
-        if (event.author == null || event.member == null) {
+        if (event.author == null || event.author.isBot || event.member == null) {
             return
         }
 
@@ -27,7 +28,6 @@ object CommandDispatcher {
                     it.shard.requests++
                 }
             }
-
         }
     }
 
@@ -37,41 +37,35 @@ object CommandDispatcher {
      * @return If the call was successful.
      */
     fun callCommand(context: Context) : Boolean {
+        val content = context.message.content
+        if (!content.startsWith(Bot.CONFIG.prefix)) return false
+
         if (!context.guild.selfMember.hasPermission(Permission.MESSAGE_EMBED_LINKS)) {
             context.send().text("The bot needs the `Embed Links` permission to show messages.")
                     .queue(Utils.deleteMessage(15))
             return false
         }
 
-        if (context.guildOptions.ignoredUsers.contains(context.user.id)) {
-            return false
-        }
-
-        val content = context.message.content
-        if (!content.startsWith(Bot.CONFIG.prefix)) return false
-
         // Split the message.
         val tokens = Utils.stringSplit(content)
 
         val label = tokens[0].substring(Bot.CONFIG.prefix.length).toLowerCase().trim()
+
+        val cmd = Bot.getCommandRegistry().getCommand(label) ?: return false
+
+        if (isIgnored(context, context.member)) {
+            return false
+        }
 
         if (label in context.guildOptions.disabledCommands) {
             context.send().error("This command is disabled by the server owner.").queue()
             return false
         }
 
-        val cmd = Bot.getCommandRegistry().getCommand(label) ?: return false
-
-        val isIgnored = context.guildOptions.ignoredChannels.contains(context.channel.id)
-
-        if (cmd.info.ignorable && isIgnored) {
-            return false
-        }
-
         val args = tokens.copyOfRange(1, tokens.size)
 
         if (args.isNotEmpty() && (args[0] == "help" || args[0] == "?")) {
-            if (!isIgnored) context.send().embed("Command Information") {
+            context.send().embed("Command Information") {
                 field("Aliases", true) { cmd.info.aliases.joinToString(separator = ", ${Bot.CONFIG.prefix}", prefix = Bot.CONFIG.prefix) }
                 field("Usage", true) { "${Bot.CONFIG.prefix}${cmd.info.aliases[0].toLowerCase()} ${cmd.info.usage}" }
                 if (cmd.info.donor) {
@@ -92,53 +86,59 @@ object CommandDispatcher {
         val message = context.message
         val member = context.member
 
-        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.admin) {
-            if (!isIgnored) context.send().error("This command is for bot administrators only.").queue()
-            return false
-        }
+        if (!member.isAdmin()) {
+            if (cmd.info.admin) {
+                context.send().error("This command is for bot administrators only.").queue()
+                return false
+            }
 
-        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.donor && !context.guildOptions.isPremium()) {
-            if (!isIgnored) context.send().embed("Donators Only") {
-                setColor(Color.ORANGE)
-                description {
-                    buildString {
-                        append("🌟 This command is for donators' servers only.").ln()
-                        append("In order to enjoy donator perks, please consider pledging to __**[our Patreon.](https://www.patreon.com/gnarbot)**__").ln()
-                        append("Once you donate, join our __**[support guild](http://discord.gg/NQRpmr2)**__ and ask one of the owners.")
+            if (cmd.info.donor && !context.guildOptions.isPremium()) {
+                context.send().embed("Donators Only") {
+                    setColor(Color.ORANGE)
+                    description {
+                        buildString {
+                            append("🌟 This command is for donators' servers only.").ln()
+                            append("In order to enjoy donator perks, please consider pledging to __**[our Patreon.](https://www.patreon.com/gnarbot)**__").ln()
+                            append("Once you donate, join our __**[support guild](http://discord.gg/NQRpmr2)**__ and ask one of the owners.")
+                        }
                     }
+                }.action().queue()
+                return false
+            }
+
+            if (cmd.info.guildOwner) {
+                if (context.guild.owner != member) {
+                    context.send().error("This command is for server owners only.").queue()
+                    return false
                 }
-            }.action().queue()
-            return false
-        }
-
-        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.guildOwner) {
-            if (context.guild.owner != member) {
-                if (!isIgnored) context.send().error("This command is for server owners only.").queue()
-                return false
             }
-        }
 
-        if (cmd.info.scope == Scope.VOICE) {
-            if (member.voiceState.channel == null) {
-                if (!isIgnored) context.send().error("\uD83C\uDFB6 Music commands requires you to be in a voice channel.").queue()
-                return false
+            if (cmd.info.scope == Scope.VOICE) {
+                if (member.voiceState.channel == null) {
+                    context.send().error("\uD83C\uDFB6 Music commands requires you to be in a voice channel.").queue()
+                    return false
+                }
             }
-        }
 
-        if (member.user.idLong !in Bot.CONFIG.admins && cmd.info.permissions.isNotEmpty()) {
-            if (!cmd.info.scope.checkPermission(context, *cmd.info.permissions)) {
-                if (!isIgnored) {
+            if (cmd.info.permissions.isNotEmpty()) {
+                if (!cmd.info.scope.checkPermission(context, *cmd.info.permissions)) {
                     val requirements = cmd.info.permissions.map(Permission::getName)
                     context.send().error("You lack the following permissions: `$requirements` in " + when (cmd.info.scope) {
                         Scope.GUILD -> "the guild `${message.guild.name}`."
                         Scope.TEXT -> "the text channel `${message.textChannel.name}`."
                         Scope.VOICE -> "the voice channel `${member.voiceState.channel.name}`."
                     }).queue()
+                    return false
                 }
-                return false
+            }
+        } else {
+            if (cmd.info.scope == Scope.VOICE) {
+                if (member.voiceState.channel == null) {
+                    context.send().error("\uD83C\uDFB6 Music commands requires you to be in a voice channel.").queue()
+                    return false
+                }
             }
         }
-
 
         try {
             cmd.execute(context, args)
@@ -151,4 +151,13 @@ object CommandDispatcher {
         }
         return false
     }
+
+    private fun isIgnored(context: Context, member: Member): Boolean {
+        return (context.guildOptions.ignoredUsers.contains(member.user.id)
+                || context.guildOptions.ignoredChannels.contains(context.channel.id)
+                || member.roles.any { context.guildOptions.ignoredRoles.contains(it.id) })
+                && !member.hasPermission(Permission.ADMINISTRATOR)
+    }
+
+    private fun Member.isAdmin() = user.idLong in Bot.CONFIG.admins
 }
