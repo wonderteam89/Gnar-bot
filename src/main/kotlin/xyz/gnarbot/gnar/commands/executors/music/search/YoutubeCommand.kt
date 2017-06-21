@@ -2,20 +2,22 @@ package xyz.gnarbot.gnar.commands.executors.music.search
 
 import com.jagrosh.jdautilities.menu.SelectorBuilder
 import xyz.gnarbot.gnar.Bot
+import xyz.gnarbot.gnar.commands.Command
+import xyz.gnarbot.gnar.commands.CommandExecutor
 import xyz.gnarbot.gnar.music.MusicManager
 import xyz.gnarbot.gnar.utils.Utils
 import xyz.gnarbot.gnar.utils.b
 import xyz.gnarbot.gnar.utils.link
 import xyz.gnarbot.gnar.utils.ln
 
-@xyz.gnarbot.gnar.commands.Command(
+@Command(
         aliases = arrayOf("youtube", "yt"),
         usage = "(query...)",
         description = "Search and see YouTube results.",
         scope = xyz.gnarbot.gnar.commands.Scope.TEXT,
         category = xyz.gnarbot.gnar.commands.Category.MUSIC
 )
-class YoutubeCommand : xyz.gnarbot.gnar.commands.CommandExecutor() {
+class YoutubeCommand : CommandExecutor() {
     override fun execute(context: xyz.gnarbot.gnar.utils.Context, args: Array<String>) {
         if (args.isEmpty()) {
             context.send().error("Input a query to search YouTube.").queue()

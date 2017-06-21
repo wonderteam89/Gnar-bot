@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.User
 import java.awt.Color
 import java.util.concurrent.TimeUnit
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 @Suppress("UNCHECKED_CAST")
 abstract class MenuBuilder<T: MenuBuilder<T>>(val waiter: EventWaiter) {
