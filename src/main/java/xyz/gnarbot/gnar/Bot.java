@@ -20,6 +20,8 @@ import xyz.gnarbot.gnar.utils.SimpleLogToSLF4JAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Main bot class.
@@ -28,6 +30,7 @@ import java.util.List;
  */
 public final class Bot {
     public static final Logger LOG = LoggerFactory.getLogger("Bot");
+    public static final ScheduledExecutorService EXECUTOR = Executors.newSingleThreadScheduledExecutor();
 
     public static final Credentials KEYS = new Credentials(new File("credentials.conf"));
     public static final BotConfiguration CONFIG = new BotConfiguration(new File("bot.conf"));
