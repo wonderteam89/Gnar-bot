@@ -3,6 +3,7 @@ package xyz.gnarbot.gnar;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,11 @@ public final class Bot {
         }
 
         STATE = LoadState.COMPLETE;
+
+        for (Shard shard : shards) {
+            shard.getJda().getPresence().setGame(Game.of(String.format(CONFIG.getGame(), shard.getId())));
+        }
+
 
         LOG.info("The bot is now fully connected to Discord.");
     }

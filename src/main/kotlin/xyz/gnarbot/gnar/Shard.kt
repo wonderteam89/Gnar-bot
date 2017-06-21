@@ -21,10 +21,11 @@ class Shard(val id: Int) {
         setAudioSendFactory(NativeAudioSendFactory())
         addEventListener(Bot.guildCountListener, Bot.waiter, Bot.botListener)
         setEnableShutdownHook(true)
-        setGame(Game.of(String.format(CONFIG.game, id)))
+        setGame(Game.of("Loading up..."))
     }
 
     lateinit var jda: JDA
+        private set
 
     fun build() {
         try {
