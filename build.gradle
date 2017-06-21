@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'xyz.gnarbot'
-version '3.0'
+version '4.0'
 
 mainClassName = 'xyz.gnarbot.gnar.Bot'
 
@@ -35,7 +35,7 @@ dependencies {
     compile group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '2.4.11'
 
     // JDA
-    compile group: 'net.dv8tion', name: 'JDA', version: '3.1.1_212'
+    compile group: 'net.dv8tion', name: 'JDA', version: '3.1.1_215'
     compile group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.5'
     compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.42'
 

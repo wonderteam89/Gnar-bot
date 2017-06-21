@@ -45,6 +45,10 @@ public class MusicManager {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
+                if (!playlist.isSearchResult()) {
+                    return;
+                }
+
                 callback.accept(playlist.getTracks().subList(0, Math.min(maxResults, playlist.getTracks().size())));
             }
 
@@ -72,8 +76,8 @@ public class MusicManager {
         this(guild.getIdLong());
     }
 
-    private MusicManager(long id) {
-        this.id = id;
+    private MusicManager(long guild) {
+        this.id = guild;
         this.player = playerManager.createPlayer();
         this.scheduler = new TrackScheduler(this, player);
         this.player.addListener(scheduler);
@@ -148,12 +152,13 @@ public class MusicManager {
     }
 
     public void loadAndPlay(Context context, String trackUrl, String footnote) {
-        Guild guild = Bot.getGuild(id);
-        if (guild == null) {
-            return;
-        }
+        Guild guild = getGuild();
 
-        if (getGuild().getSelfMember().getVoiceState().getChannel() == null) {
+        if (guild.getSelfMember().getVoiceState().getChannel() == null) {
+            if (context.getMember().getVoiceState().getChannel() == null) {
+                context.send().error("Error, not in a channel?");
+                return;
+            }
             openAudioConnection(context.getMember().getVoiceState().getChannel(), context);
         }
 

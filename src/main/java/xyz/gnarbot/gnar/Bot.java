@@ -13,7 +13,6 @@ import xyz.gnarbot.gnar.listeners.GuildCountListener;
 import xyz.gnarbot.gnar.music.PlayerRegistry;
 import xyz.gnarbot.gnar.options.OptionsRegistry;
 import xyz.gnarbot.gnar.utils.DiscordLogBack;
-import xyz.gnarbot.gnar.utils.MyAnimeListAPI;
 import xyz.gnarbot.gnar.utils.SimpleLogToSLF4JAdapter;
 
 import java.io.File;
@@ -42,7 +41,7 @@ public final class Bot {
 
     private static final List<Shard> shards = new ArrayList<>();
 
-    private static MyAnimeListAPI malAPI;
+//    private static MyAnimeListAPI malAPI;
 
     public static void main(String[] args) {
         SimpleLogToSLF4JAdapter.install();
@@ -51,7 +50,7 @@ public final class Bot {
         LOG.info("Initializing the Discord bot.");
 
         LOG.info("Preparing for MAL with Credentials: " + KEYS.getMalUser() + " and " + KEYS.getMalPass());
-        malAPI = new MyAnimeListAPI(KEYS.getMalUser(), KEYS.getMalPass());
+//        malAPI = new MyAnimeListAPI(KEYS.getMalUser(), KEYS.getMalPass());
 
         LOG.info("Name:\t" + CONFIG.getName());
         LOG.info("JDAs:\t" + KEYS.getShards());
@@ -72,9 +71,9 @@ public final class Bot {
         return DATABASE;
     }
 
-    public static MyAnimeListAPI getMALAPI() {
-        return malAPI;
-    }
+//    public static MyAnimeListAPI getMALAPI() {
+//        return malAPI;
+//    }
 
     public static CommandRegistry getCommandRegistry() {
         return commandRegistry;
@@ -97,8 +96,8 @@ public final class Bot {
         return shards;
     }
 
-    public static Shard getShard(int id) {
-        return shards.get(id);
+    public static Shard getShard(int index) {
+        return shards.get(index);
     }
 
     public static Shard getShard(JDA jda) {

@@ -64,7 +64,7 @@ class PollCommand : CommandExecutor() {
                         }
                     }
 
-                    it.clearReactions().reason("Poll ended.").queue()
+                    it.clearReactions().queue()
 
                     field("Winner") {
                         winners.joinToString(prefix = "**", postfix = "**") { options[it] }

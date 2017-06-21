@@ -23,7 +23,7 @@ public class PlayerRegistry {
         MusicManager manager = registry.get(guild.getIdLong());
 
         if (manager == null) { // why not pass Long? just in case guild doesnt exist
-            LOG.debug("Created music manager of guild " + guild.getIdLong());
+            LOG.info("Created music manager of guild " + guild.getIdLong());
             manager = new MusicManager(guild);
             registry.put(guild.getIdLong(), manager);
         }
@@ -41,7 +41,7 @@ public class PlayerRegistry {
     }
 
     public void remove(long id) {
-        LOG.debug("Removed music manager of guild " + id);
+        LOG.info("Removed music manager of guild " + id);
         registry.remove(id);
     }
 
@@ -53,7 +53,7 @@ public class PlayerRegistry {
         MusicManager manager = registry.get(id);
         if (manager != null) {
             manager.destroy();
-            // The manager will remove itself.
+            remove(id);
         }
     }
 

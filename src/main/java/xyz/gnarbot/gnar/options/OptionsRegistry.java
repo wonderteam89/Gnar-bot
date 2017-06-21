@@ -11,7 +11,7 @@ public class OptionsRegistry {
         if (options == null) {
             options = new GuildOptions(Long.toUnsignedString(id));
         } else {
-            Database.LOG.debug("Loaded " + options + " from database.");
+            Database.LOG.info("Loaded " + options + " from database.");
         }
 
         return options;
