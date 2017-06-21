@@ -14,52 +14,61 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import xyz.gnarbot.gnar.Bot;
 import xyz.gnarbot.gnar.commands.CommandDispatcher;
+import xyz.gnarbot.gnar.commands.LoadState;
 import xyz.gnarbot.gnar.options.GuildOptions;
 
 public class BotListener extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        CommandDispatcher.INSTANCE.handleEvent(event);
+        if (Bot.STATE == LoadState.COMPLETE) {
+            CommandDispatcher.INSTANCE.handleEvent(event);
+        }
     }
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        GuildOptions options = Bot.getOptionRegistry().ofGuild(event.getGuild());
+        if (Bot.STATE == LoadState.COMPLETE) {
+            GuildOptions options = Bot.getOptionRegistry().ofGuild(event.getGuild());
 
-        if (options.getAutoRole() != null) {
-            Role role = event.getGuild().getRoleById(options.getAutoRole());
-            event.getGuild().getController().addRolesToMember(event.getMember(), role).queue();
+            if (options.getAutoRole() != null) {
+                Role role = event.getGuild().getRoleById(options.getAutoRole());
+                event.getGuild().getController().addRolesToMember(event.getMember(), role).queue();
+            }
         }
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        Bot.getOptionRegistry().ofGuild(event.getGuild().getIdLong()).delete();
+        if (Bot.STATE == LoadState.COMPLETE) {
+            Bot.getOptionRegistry().ofGuild(event.getGuild().getIdLong()).delete();
+        }
     }
 
     @Override
     public void onGenericGuildVoice(GenericGuildVoiceEvent event) {
-        if (event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
-            if (event.getMember().getUser() == event.getJDA().getSelfUser()) return;
+        if (Bot.STATE == LoadState.COMPLETE) {
+            if (event instanceof GuildVoiceLeaveEvent || event instanceof GuildVoiceMoveEvent) {
+                if (event.getMember().getUser() == event.getJDA().getSelfUser()) return;
 
-            Guild guild = event.getGuild();
+                Guild guild = event.getGuild();
 
-            if (guild == null) return;
+                if (guild == null) return;
 
-            VoiceChannel botChannel = guild.getSelfMember().getVoiceState().getChannel();
+                VoiceChannel botChannel = guild.getSelfMember().getVoiceState().getChannel();
 
-            VoiceChannel channelLeft;
+                VoiceChannel channelLeft;
 
-            if (event instanceof GuildVoiceLeaveEvent) {
-                channelLeft = ((GuildVoiceLeaveEvent) event).getChannelLeft();
-            } else {
-                channelLeft = ((GuildVoiceMoveEvent) event).getChannelLeft();
-            }
+                if (event instanceof GuildVoiceLeaveEvent) {
+                    channelLeft = ((GuildVoiceLeaveEvent) event).getChannelLeft();
+                } else {
+                    channelLeft = ((GuildVoiceMoveEvent) event).getChannelLeft();
+                }
 
-            if (botChannel == null || !channelLeft.equals(botChannel)) return;
+                if (botChannel == null || !channelLeft.equals(botChannel)) return;
 
-            if (botChannel.getMembers().size() == 1) {
-                Bot.getPlayerRegistry().destroy(guild);
+                if (botChannel.getMembers().size() == 1) {
+                    Bot.getPlayerRegistry().destroy(guild);
+                }
             }
         }
     }

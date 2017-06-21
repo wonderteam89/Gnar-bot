@@ -156,7 +156,7 @@ public class MusicManager {
 
         if (guild.getSelfMember().getVoiceState().getChannel() == null) {
             if (context.getMember().getVoiceState().getChannel() == null) {
-                context.send().error("Error, not in a channel?");
+                context.send().error("Error, not in a channel?").queue();
                 return;
             }
             openAudioConnection(context.getMember().getVoiceState().getChannel(), context);

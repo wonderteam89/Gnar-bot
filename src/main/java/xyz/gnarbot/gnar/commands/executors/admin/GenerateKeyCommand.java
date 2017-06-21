@@ -22,7 +22,7 @@ public class GenerateKeyCommand extends CommandExecutor {
     @Override
     public void execute(Context context, String[] args) {
         if (args.length < 3) {
-            context.send().error("Insufficient args.");
+            context.send().error("Insufficient args.").queue();
             return;
         }
 

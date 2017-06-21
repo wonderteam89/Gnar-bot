@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xyz.gnarbot.gnar.commands.CommandRegistry;
+import xyz.gnarbot.gnar.commands.LoadState;
 import xyz.gnarbot.gnar.db.Database;
 import xyz.gnarbot.gnar.listeners.BotListener;
 import xyz.gnarbot.gnar.listeners.GuildCountListener;
@@ -41,6 +42,8 @@ public final class Bot {
 
     private static final List<Shard> shards = new ArrayList<>();
 
+    public static LoadState STATE = LoadState.LOADING;
+
 //    private static MyAnimeListAPI malAPI;
 
     public static void main(String[] args) {
@@ -49,7 +52,7 @@ public final class Bot {
 
         LOG.info("Initializing the Discord bot.");
 
-        LOG.info("Preparing for MAL with Credentials: " + KEYS.getMalUser() + " and " + KEYS.getMalPass());
+//        LOG.info("Preparing for MAL with Credentials: " + KEYS.getMalUser() + " and " + KEYS.getMalPass());
 //        malAPI = new MyAnimeListAPI(KEYS.getMalUser(), KEYS.getMalPass());
 
         LOG.info("Name:\t" + CONFIG.getName());
@@ -63,6 +66,8 @@ public final class Bot {
             shards.add(shard);
             shard.build();
         }
+
+        STATE = LoadState.COMPLETE;
 
         LOG.info("The bot is now fully connected to Discord.");
     }
